@@ -43,6 +43,10 @@ const saveEvents = (subject, data) => {
   saveData(eventsDataPath, data)
 }
 
+app.get('/', (req, res) => {
+  res.send('Friendly-lamp scholar backend')
+})
+
 app.get('/get-events', (req, res) => {
   const {subject} = req.query
   if (!subject) {
