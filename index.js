@@ -5,8 +5,20 @@ const app = express()
 
 const APP_PORT = process.env.PORT || '3002'
 
-const eventsPath = './public/data/events'
-const linksPath = './public/data/links'
+const eventsPath = './data/events'
+const linksPath = './data/links'
+
+const establishDirectoryStructure = () => {
+  if (!fs.existsSync(path.join(__dirname, './data'))) {
+    fs.mkdirSync('./data')
+  }
+  if (!fs.existsSync(path.join(__dirname, eventsPath))) {
+    fs.mkdirSync(eventsPath)
+  }
+  if (!fs.existsSync(path.join(__dirname, linksPath))) {
+    fs.mkdirSync(linksPath)
+  }
+}
 
 const getData = (path, defaultData) => {
   if (!fs.existsSync(path)) {
@@ -119,4 +131,7 @@ app.post('/new-link', (req, res) => {
   }
 })
 
-app.listen(APP_PORT, _ => console.log(`Listening on ${APP_PORT}`))
+app.listen(APP_PORT, _ => {
+  establishDirectoryStructure()
+  console.log(`Listening on ${APP_PORT}`)
+})
