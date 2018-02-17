@@ -1,0 +1,19 @@
+{
+  "name": "friendly-lamp",
+  "version": "1.0.0",
+  "description": "Vce note sharing and forums",
+  "main": "index.js",
+  "repository": "https://github.com/retroverse/friendly-lamp.git",
+  "author": "retroverse <ebreakey@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "express": "^4.16.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.14.12"   
+  },
+  "scripts": {
+    "start": "nodemon index.js"
+  }
+}
