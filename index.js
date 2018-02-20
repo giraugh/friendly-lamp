@@ -1,70 +1,39 @@
-const path = require('path')
-const fs = require('fs')
 const express = require('express')
+const btoa = require('btoa')
+const bodyParser = require('body-parser')
+const authControl = require('./src/authControl')
+const verifyToken = require('./src/middleware/verifyToken')
+const checkPermissions = require('./src/middleware/checkPermissions')
+const getUser = require('./src/middleware/getUser')
+const {
+  POST_EVENT,
+  POST_LINK
+} = require('./src/permissions')
+const {
+  getEventsData,
+  getLinksData,
+  addEvent,
+  addLink,
+  establishDirectoryStructure
+} = require('./src/data')
+
 const app = express()
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+app.use('/auth', authControl)
 
 const APP_PORT = process.env.PORT || '3002'
-
-const eventsPath = './data/events'
-const linksPath = './data/links'
-
-const establishDirectoryStructure = () => {
-  if (!fs.existsSync(path.join(__dirname, './data'))) {
-    fs.mkdirSync('./data')
-  }
-  if (!fs.existsSync(path.join(__dirname, eventsPath))) {
-    fs.mkdirSync(eventsPath)
-  }
-  if (!fs.existsSync(path.join(__dirname, linksPath))) {
-    fs.mkdirSync(linksPath)
-  }
-}
-
-const getData = (path, defaultData) => {
-  if (!fs.existsSync(path)) {
-    return defaultData
-  } else {
-    let content = fs.readFileSync(path)
-    return JSON.parse(content.toString())
-  }
-}
-
-const saveData = (path, data) => {
-  fs.writeFileSync(path, JSON.stringify(data))
-}
-
-const getLinksData = (subject) => {
-  const linksDataPath = path.join(__dirname, `${linksPath}/${subject}.json`)
-  const data = getData(linksDataPath, {links: []})
-  return data
-}
-
-const saveLinks = (subject, data) => {
-  const linksDataPath = path.join(__dirname, `${linksPath}/${subject}.json`)
-  saveData(linksDataPath, data)
-}
-
-const getEventsData = (subject) => {
-  const eventsDataPath = path.join(__dirname, `${eventsPath}/${subject}.json`)
-  const data = getData(eventsDataPath, {events: []})
-  return data
-}
-
-const saveEvents = (subject, data) => {
-  const eventsDataPath = path.join(__dirname, `${eventsPath}/${subject}.json`)
-  saveData(eventsDataPath, data)
-}
 
 app.get('/', (req, res) => {
   res.send('Friendly-lamp scholar backend')
 })
 
 app.get('/get-events', (req, res) => {
-  const {subject} = req.query
+  const {subject} = req.body
   if (!subject) {
     return res
       .status(400)
-      .send('Requires valid ?subject query')
+      .send('Requires valid subject param')
   } else {
     const data = getEventsData(subject)
     res.send(data)
@@ -72,64 +41,75 @@ app.get('/get-events', (req, res) => {
 })
 
 app.get('/get-links', (req, res) => {
-  const {subject} = req.query
+  const {subject} = req.body
   if (!subject) {
     return res
       .status(400)
-      .send('Requires valid ?subject query')
+      .send('Requires valid subject param')
   } else {
     const data = getLinksData(subject)
     res.send(data)
   }
 })
 
-app.post('/new-event', (req, res) => {
-  const {name, subject, description, date} = req.query
-  if (name && subject && description && date) {
-    const data = getEventsData(subject)
+app.post(
+  '/new-event',
+  verifyToken,
+  getUser,
+  checkPermissions([POST_EVENT]),
+  (req, res) => {
+    const {name, subject, description, date} = req.body
+    if (name && subject && description && date) {
+      // Get Current Time
+      const timestamp = Date.now()
 
-    // Add New Event
-    data.events.push({
-      name,
-      description,
-      date
-    })
+      // Save new event
+      addEvent(subject, {
+        name,
+        description,
+        date,
+        timestamp,
+        id: btoa(timestamp + ':' + date)
+      })
 
-    // Re-write
-    saveEvents(subject, data)
-
-    res.send('Succesfully uploaded event!')
-  } else {
-    res
-      .status(400)
-      .send('Requires valid ?name, ?desc, ?date and ?subject queries')
+      res.send('Succesfully uploaded event!')
+    } else {
+      res
+        .status(400)
+        .send('Requires valid name, description, date and subject params')
+    }
   }
-})
+)
 
-app.post('/new-link', (req, res) => {
-  const {link, subject, description, name} = req.query
-  if (link && subject && description && name) {
-    // Get links
-    const data = getLinksData(subject)
+app.post(
+  '/new-link',
+  verifyToken,
+  getUser,
+  checkPermissions([POST_LINK]),
+  (req, res) => {
+    const {link, subject, description, name} = req.body
+    if (link && subject && description && name) {
+      // Get Current Time
+      const timestamp = Date.now()
 
-    // Add new link
-    data.links.push({
-      name,
-      link,
-      description
-    })
+      // Save new link
+      addLink(subject, {
+        name,
+        link,
+        description,
+        timestamp,
+        id: btoa(timestamp + ':' + link)
+      })
 
-    // Save links
-    saveLinks(subject, data)
-
-    // Inform
-    res.send('Succesfully uploaded link!')
-  } else {
-    res
-      .status(400)
-      .send('Requires valid ?name, ?link, ?description and ?subject queries')
+      // Inform
+      res.send('Succesfully uploaded link!')
+    } else {
+      res
+        .status(400)
+        .send('Requires valid name, link, description and subject params')
+    }
   }
-})
+)
 
 app.listen(APP_PORT, _ => {
   establishDirectoryStructure()

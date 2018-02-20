@@ -61,6 +61,4 @@ typings/
 dist
 yarn.lock
 
-public/data/notes
-Public/data/links
-public/data/events
+data
