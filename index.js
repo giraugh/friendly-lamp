@@ -29,11 +29,11 @@ app.get('/', (req, res) => {
 })
 
 app.get('/get-events', (req, res) => {
-  const {subject} = req.body
+  const {subject} = req.query
   if (!subject) {
     return res
       .status(400)
-      .send('Requires valid subject param')
+      .send('Requires valid ?subject query')
   } else {
     const data = getEventsData(subject)
     res.send(data)
@@ -41,11 +41,11 @@ app.get('/get-events', (req, res) => {
 })
 
 app.get('/get-links', (req, res) => {
-  const {subject} = req.body
+  const {subject} = req.query
   if (!subject) {
     return res
       .status(400)
-      .send('Requires valid subject param')
+      .send('Requires valid ?subject query')
   } else {
     const data = getLinksData(subject)
     res.send(data)
