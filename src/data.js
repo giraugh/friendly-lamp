@@ -8,13 +8,13 @@ const USERS_PATH = DATA_PATH + '/users.json'
 
 const establishDirectoryStructure = () => {
   if (!fs.existsSync(path.join(__dirname, DATA_PATH))) {
-    fs.mkdirSync(DATA_PATH)
+    fs.mkdirSync(path.join(__dirname, DATA_PATH))
   }
   if (!fs.existsSync(path.join(__dirname, EVENTS_PATH))) {
-    fs.mkdirSync(EVENTS_PATH)
+    fs.mkdirSync(path.join(__dirname, EVENTS_PATH))
   }
   if (!fs.existsSync(path.join(__dirname, LINKS_PATH))) {
-    fs.mkdirSync(LINKS_PATH)
+    fs.mkdirSync(path.join(__dirname, LINKS_PATH))
   }
 }
 
