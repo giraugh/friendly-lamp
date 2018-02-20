@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-const DATA_PATH = './data'
+const DATA_PATH = '../data'
 const EVENTS_PATH = DATA_PATH + '/events'
 const LINKS_PATH = DATA_PATH + '/links'
 const USERS_PATH = DATA_PATH + '/users.json'
@@ -79,7 +79,6 @@ const addLink = (subject, link) => {
 const addUser = (user) => {
   const data = getUsersData()
   data.users.push(user)
-  console.log(USERS_PATH)
   saveUsers(data)
 }
 
