@@ -66,7 +66,7 @@ const saveUsers = (data) => {
 
 const addEvent = (subject, event) => {
   const data = getEventsData(subject)
-  data.links.push(event)
+  data.events.push(event)
   saveEvents(subject, data)
 }
 
