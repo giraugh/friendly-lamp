@@ -12,13 +12,14 @@
     "body-parser": "^1.18.2",
     "btoa": "^1.1.2",
     "express": "^4.16.2",
-    "jsonwebtoken": "^8.1.1"
+    "jsonwebtoken": "^8.1.1",
+    "node-fetch": "^2.0.0"
   },
   "devDependencies": {
     "nodemon": "^1.14.12"
   },
   "scripts": {
     "start": "node index.js",
-    "dev": "export HASH_SECRET=dev && nodemon index.js"
+    "dev": "export HASH_SECRET=dev && export CAPTCHA_SECRET=6LdoHUgUAAAAAHVYEBupV5xwwFX5WG1_YSdIFR7D && nodemon index.js"
   }
 }

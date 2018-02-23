@@ -5,13 +5,14 @@ const bodyParser = require('body-parser')
 const {addUser, getUsers} = require('./data')
 const config = require('./config')
 const User = require('./User')
+const validateCaptcha = require('./middleware/validateCaptcha')
 const verifyToken = require('./middleware/verifyToken')
 const getUser = require('./middleware/getUser')
 
 const router = express.Router()
 router.use(bodyParser.urlencoded({ extended: false }))
 router.use(bodyParser.json())
-router.post('/register', (req, res) => {
+router.post('/register', validateCaptcha, (req, res) => {
   const {
     name,
     password,
