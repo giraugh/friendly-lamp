@@ -19,6 +19,16 @@ router.post('/register', validateCaptcha, (req, res) => {
     email
   } = req.body
   if (name && password && email) {
+    // Are these creds already taken?
+    const users = getUsers()
+    const existingUser = users.find(u => u.name === name || u.email === email)
+    if (existingUser) {
+      return res
+        .status(401)
+        .send({auth: false})
+    }
+
+    // Create User
     const hashedPassword = bcrypt.hashSync(password, 8)
     const user = new User(
       name,

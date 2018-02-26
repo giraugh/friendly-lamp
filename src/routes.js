@@ -25,7 +25,7 @@ router.get('/get-events', (req, res) => {
   if (!subject) {
     return res
       .status(400)
-      .send('Requires valid ?subject query')
+      .send({success: false, message: 'Requires valid ?subject query'})
   } else {
     const data = getEventsData(subject)
     res.send(data)
@@ -37,7 +37,7 @@ router.get('/get-links', (req, res) => {
   if (!subject) {
     return res
       .status(400)
-      .send('Requires valid ?subject query')
+      .send({success: false, message: 'Requires valid ?subject query'})
   } else {
     const data = getLinksData(subject)
     res.send(data)
@@ -65,11 +65,11 @@ router.post(
         author: req.user.id
       })
 
-      res.send('Succesfully uploaded event!')
+      res.send({success: true, message: 'Succesfully uploaded event!'})
     } else {
       res
         .status(400)
-        .send('Requires valid name, description, date and subject params')
+        .send({success: false, message: 'Requires valid name, description, date and subject params'})
     }
   }
 )
@@ -96,11 +96,11 @@ router.post(
       })
 
       // Inform
-      res.send('Succesfully uploaded link!')
+      res.send({success: true, message: 'Succesfully uploaded link!'})
     } else {
       res
         .status(400)
-        .send('Requires valid name, link, description and subject params')
+        .send({success: false, message: 'Requires valid name, link, description and subject params'})
     }
   }
 )

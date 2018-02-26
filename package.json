@@ -16,10 +16,11 @@
     "node-fetch": "^2.0.0"
   },
   "devDependencies": {
-    "nodemon": "^1.14.12"
+    "nodemon": "^1.14.12",
+    "dotenv": "^5.0.0"
   },
   "scripts": {
     "start": "node index.js",
-    "dev": "export HASH_SECRET=dev && export CAPTCHA_SECRET=6LdoHUgUAAAAAHVYEBupV5xwwFX5WG1_YSdIFR7D && nodemon index.js"
+    "dev": "nodemon index.js"
   }
 }
