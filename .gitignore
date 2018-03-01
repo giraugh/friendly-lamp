@@ -66,3 +66,5 @@ data-fs
 data-mongo
 
 .env
+
+.DS_Store
