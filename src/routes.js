@@ -30,8 +30,14 @@ router.get('/get-events', (req, res) => {
       .status(400)
       .send({success: false, message: 'Requires valid ?subject query'})
   } else {
-    getEvents(subject)
+    getEvents({subject})
       .then(events => res.send(events))
+      .catch(err => {
+        console.error('Error getting links', err)
+        res
+          .status(500)
+          .send({error: err})
+      })
   }
 })
 
