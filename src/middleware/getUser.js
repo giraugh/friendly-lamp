@@ -1,4 +1,4 @@
-const { getUsersById } = require('../users')
+const { getUsersById } = require('../getters/users')
 
 const getUser = (req, res, next) => {
   getUsersById(req.userId, { password: 0 })

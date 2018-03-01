@@ -7,14 +7,13 @@ const validateCaptcha = require('./middleware/validateCaptcha')
 const verifyToken = require('./middleware/verifyToken')
 const getUser = require('./middleware/getUser')
 
-const { newUser, getUsers } = require('./users')
+const { newUser, getUsers } = require('./getters/users')
 const { secret } = require('./config')
 
 const router = express.Router()
 router.use(bodyParser.urlencoded({ extended: false }))
 router.use(bodyParser.json())
-// #HACK #TODO put validateCaptcha back in
-router.post('/register', (req, res) => {
+router.post('/register', validateCaptcha, (req, res) => {
   const {
     name,
     password,

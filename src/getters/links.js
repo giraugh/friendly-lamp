@@ -1,4 +1,4 @@
-const Link = require('./models/Link')
+const Link = require('../models/Link')
 
 const newLink = (link) =>
   new Link(link)

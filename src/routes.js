@@ -11,11 +11,11 @@ const {
 const {
   newEvent,
   getEvents
-} = require('./events.js')
+} = require('./getters/events.js')
 const {
   newLink,
   getLinks
-} = require('./links.js')
+} = require('./getters/links.js')
 
 const router = express.Router()
 
