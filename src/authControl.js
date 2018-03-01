@@ -2,12 +2,13 @@ const express = require('express')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const bodyParser = require('body-parser')
-const {addUser, getUsers} = require('./data')
-const config = require('./config')
-const User = require('./User')
+
 const validateCaptcha = require('./middleware/validateCaptcha')
 const verifyToken = require('./middleware/verifyToken')
 const getUser = require('./middleware/getUser')
+
+const { newUser, getUsers } = require('./getters/users')
+const { secret } = require('./config')
 
 const router = express.Router()
 router.use(bodyParser.urlencoded({ extended: false }))
@@ -19,32 +20,50 @@ router.post('/register', validateCaptcha, (req, res) => {
     email
   } = req.body
   if (name && password && email) {
-    // Are these creds already taken?
-    const users = getUsers()
-    const existingUser = users.find(u => u.name === name || u.email === email)
-    if (existingUser) {
-      return res
-        .status(401)
-        .send({auth: false})
-    }
+    getUsers()
+      .catch(err => {
+        console.error('Failed to get users', err)
+        res
+          .status(500)
+          .send({error: err})
+      })
+      .then(users => {
+        // Are these creds already taken?
+        const existingUser = users.find(u => u.name === name || u.email === email)
+        if (existingUser) {
+          return res
+            .status(401)
+            .send({auth: false, message: 'User already exists.'})
+        }
 
-    // Create User
-    const hashedPassword = bcrypt.hashSync(password, 8)
-    const user = new User(
-      name,
-      email,
-      hashedPassword
-    )
-    let token = jwt.sign({ id: User.getUserId(user) }, config.secret, {
-      expiresIn: 86400
-    })
+        // Create user
+        const hashedPassword = bcrypt.hashSync(password, 8)
+        const user = newUser({
+          name,
+          email,
+          password: hashedPassword
+        })
 
-    res
-      .status(200)
-      .send({ auth: true, token })
+        // Chain
+        return user.save()
+      })
+      .catch(err => {
+        console.error('Error creating user', err)
+        res
+          .status(500)
+          .send({auth: false, error: err})
+      })
+      .then(user => {
+        // Create token
+        let token = jwt.sign({ id: user._id }, secret, {
+          expiresIn: 86400
+        })
 
-    // Save the user locally
-    addUser(user)
+        // Respond with it
+        res
+          .status(200)
+          .send({ auth: true, token })
+      })
   } else {
     return res
       .status(400)
@@ -62,31 +81,42 @@ router.post('/login', (req, res) => {
   } = req.body
 
   // Find the user in question
-  const users = getUsers()
-  const user = users.find(user => user.email === email)
-  if (!user) {
-    return res
-      .status(404)
-      .send('No such user was found.')
-  }
+  getUsers({email})
+    .then(users => {
+      // We got this user?
+      if (!users.length) {
+        return res
+          .status(404)
+          .send('No such user was found.')
+      }
 
-  // Validate password
-  const passwordIsValid = bcrypt.compareSync(password, user.password)
-  if (!passwordIsValid) {
-    return res
-      .status(401)
-      .send({ auth: false, token: null })
-  }
+      // Get the user
+      const user = users[0]
 
-  // Create token
-  const token = jwt.sign({ id: User.getUserId(user) }, config.secret, {
-    expiresIn: 86400
-  })
+      // Validate password
+      const passwordIsValid = bcrypt.compareSync(password, user.password)
+      if (!passwordIsValid) {
+        return res
+          .status(401)
+          .send({ auth: false, token: null })
+      }
 
-  // Send token
-  return res
-    .status(200)
-    .send({ auth: true, token })
+      // Create token
+      const token = jwt.sign({ id: user._id }, secret, {
+        expiresIn: 86400
+      })
+
+      // Send token
+      return res
+        .status(200)
+        .send({ auth: true, token })
+    })
+    .catch(err => {
+      console.error('There was an error getting users.', err)
+      return res
+        .status(500)
+        .send({ auth: false, error: err })
+    })
 })
 
 module.exports = router

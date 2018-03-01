@@ -62,5 +62,7 @@ dist
 yarn.lock
 
 data
+data-fs
+data-mongo
 
 .env
