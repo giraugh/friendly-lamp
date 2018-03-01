@@ -1,9 +1,7 @@
-const User = require('../User')
-
 // Expects req.user to be set
 const checkPermissions = requiredPermissions => (req, res, next) => {
   const user = req.user
-  const hasAllPermissions = requiredPermissions.every(perm => User.can(user, perm))
+  const hasAllPermissions = requiredPermissions.every(perm => user.can(perm))
   if (hasAllPermissions) {
     next()
   } else {

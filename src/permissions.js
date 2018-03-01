@@ -3,4 +3,12 @@ const permissions = {
   POST_EVENT: 2
 }
 
-module.exports = permissions
+const defaultPermissions = [
+  permissions.POST_EVENT,
+  permissions.POST_LINK
+]
+
+module.exports = {
+  permissions,
+  defaultPermissions
+}

@@ -1,18 +1,21 @@
 const express = require('express')
-const btoa = require('btoa')
 const verifyToken = require('./middleware/verifyToken')
 const checkPermissions = require('./middleware/checkPermissions')
 const getUser = require('./middleware/getUser')
 const {
-  POST_EVENT,
-  POST_LINK
+  permissions: {
+    POST_EVENT,
+    POST_LINK
+  }
 } = require('./permissions')
 const {
-  getEventsData,
-  getLinksData,
-  addEvent,
-  addLink
-} = require('./data')
+  newEvent,
+  getEvents
+} = require('./events.js')
+const {
+  newLink,
+  getLinks
+} = require('./links.js')
 
 const router = express.Router()
 
@@ -27,8 +30,8 @@ router.get('/get-events', (req, res) => {
       .status(400)
       .send({success: false, message: 'Requires valid ?subject query'})
   } else {
-    const data = getEventsData(subject)
-    res.send(data)
+    getEvents(subject)
+      .then(events => res.send(events))
   }
 })
 
@@ -39,8 +42,14 @@ router.get('/get-links', (req, res) => {
       .status(400)
       .send({success: false, message: 'Requires valid ?subject query'})
   } else {
-    const data = getLinksData(subject)
-    res.send(data)
+    getLinks({subject})
+      .then(links => res.send(links))
+      .catch(err => {
+        console.error('Error getting links', err)
+        res
+          .status(500)
+          .send({error: err})
+      })
   }
 })
 
@@ -52,20 +61,21 @@ router.post(
   (req, res) => {
     const {name, subject, description, date} = req.body
     if (name && subject && description && date) {
-      // Get Current Time
-      const timestamp = Date.now()
-
       // Save new event
-      addEvent(subject, {
+      newEvent({
+        subject,
         name,
         description,
         date,
-        timestamp,
-        id: btoa(timestamp + ':' + date),
-        author: req.user.id
-      })
-
-      res.send({success: true, message: 'Succesfully uploaded event!'})
+        user: req.user._id
+      }).save()
+        .catch(err => {
+          console.log('Error creating event', err)
+          res
+            .status(500)
+            .send({success: false, error: err})
+        })
+        .then(() => res.send({success: true, message: 'Succesfully created event!'}))
     } else {
       res
         .status(400)
@@ -82,18 +92,20 @@ router.post(
   (req, res) => {
     const {link, subject, description, name} = req.body
     if (link && subject && description && name) {
-      // Get Current Time
-      const timestamp = Date.now()
-
-      // Save new link
-      addLink(subject, {
+      newLink({
+        subject,
         name,
-        link,
         description,
-        timestamp,
-        id: btoa(timestamp + ':' + link),
-        author: req.user.id
-      })
+        link,
+        user: req.user._id
+      }).save()
+        .catch(err => {
+          console.log('Error creating link', err)
+          res
+            .status(500)
+            .send({success: false, error: err})
+        })
+        .then(() => res.send({success: true, message: 'Succesfully created link!'}))
 
       // Inform
       res.send({success: true, message: 'Succesfully uploaded link!'})

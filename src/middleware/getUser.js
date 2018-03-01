@@ -1,20 +1,23 @@
-const {getUsers} = require('../data')
-const User = require('../User')
+const { getUsersById } = require('../users')
 
 const getUser = (req, res, next) => {
-  const users = getUsers().map(user => Object.assign(user, {
-    password: 0,
-    id: User.getUserId(user)
-  }))
-  const user = users.find(user => user.id === req.userId)
-  if (user) {
-    req.user = user
-    next()
-  } else {
-    return res
-      .status(401)
-      .send('No such user was found.')
-  }
+  getUsersById(req.userId, { password: 0 })
+    .then(user => {
+      if (!user) {
+        return res
+          .status(404)
+          .send({ message: 'User not found' })
+      } else {
+        req.user = user
+        next()
+      }
+    })
+    .catch(err => {
+      console.error('There was an error getting users.', err)
+      return res
+        .status(500)
+        .send({ auth: false, error: err })
+    })
 }
 
 module.exports = getUser
