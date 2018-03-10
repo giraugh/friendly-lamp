@@ -6,11 +6,11 @@ const newLink = (link) =>
 const getLinks = (query) =>
   Link.find(query)
 
-const getLinksById = (id, exemption) =>
-  Link.find(id, exemption)
+const getLinkById = (id, exemption) =>
+  Link.findById(id, exemption)
 
 module.exports = {
   newLink,
   getLinks,
-  getLinksById
+  getLinkById
 }

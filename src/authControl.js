@@ -13,7 +13,8 @@ const { secret } = require('./config')
 const router = express.Router()
 router.use(bodyParser.urlencoded({ extended: false }))
 router.use(bodyParser.json())
-router.post('/register', validateCaptcha, (req, res) => {
+// #HACK #TODO Add back in the captcha check
+router.post('/register', (req, res) => {
   const {
     name,
     password,

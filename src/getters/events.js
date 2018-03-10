@@ -6,11 +6,11 @@ const newEvent = (event) =>
 const getEvents = (query) =>
   Event.find(query)
 
-const getEventsById = (id, exemption) =>
-  Event.find(id, exemption)
+const getEventById = (id, exemption) =>
+  Event.findById(id, exemption)
 
 module.exports = {
   newEvent,
   getEvents,
-  getEventsById
+  getEventById
 }
