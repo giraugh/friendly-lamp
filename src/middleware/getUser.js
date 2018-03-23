@@ -1,7 +1,7 @@
-const { getUsersById } = require('../getters/users')
+const { getUserById } = require('../getters/users')
 
 const getUser = (req, res, next) => {
-  getUsersById(req.userId, { password: 0 })
+  getUserById(req.userId, { password: 0 })
     .then(user => {
       if (!user) {
         return res

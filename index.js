@@ -1,8 +1,8 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
-const authControl = require('./src/authControl')
-const routes = require('./src/routes')
+const authControl = require('./src/middleware/authControl')
+const routes = require('./src/routes/routes')
 const headers = require('./src/headers')
 const { port, mongoUrl } = require('./src/config')
 

@@ -6,11 +6,11 @@ const newUser = (user) =>
 const getUsers = (query) =>
   User.find(query)
 
-const getUsersById = (id, exemption) =>
+const getUserById = (id, exemption) =>
   User.findById(id, exemption)
 
 module.exports = {
   newUser,
   getUsers,
-  getUsersById
+  getUserById
 }

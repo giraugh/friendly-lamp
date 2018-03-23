@@ -3,17 +3,18 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const bodyParser = require('body-parser')
 
-const validateCaptcha = require('./middleware/validateCaptcha')
-const verifyToken = require('./middleware/verifyToken')
-const getUser = require('./middleware/getUser')
+const validateCaptcha = require('./validateCaptcha')
+const verifyToken = require('./verifyToken')
+const getUser = require('./getUser')
 
-const { newUser, getUsers } = require('./getters/users')
-const { secret } = require('./config')
+const { newUser, getUsers } = require('../getters/users')
+const { secret } = require('../config')
 
+const isProduction = process.env.NODE_ENV === 'production'
 const router = express.Router()
 router.use(bodyParser.urlencoded({ extended: false }))
 router.use(bodyParser.json())
-router.post('/register', validateCaptcha, (req, res) => {
+router.post('/register', isProduction ? validateCaptcha : (req, res, next) => next(), (req, res) => {
   const {
     name,
     password,
