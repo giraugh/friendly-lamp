@@ -4,6 +4,7 @@ const checkPermissions = require('../middleware/checkPermissions')
 const checkParameters = require('../middleware/checkParameters')
 const getUser = require('../middleware/getUser')
 const getUserRoute = require('./getUser')
+const getUsersPostsRoute = require('./getUsersPosts')
 const getPostRoute = require('./getPost')
 const putPostRoute = require('./putPost')
 const postPostRoute = require('./postPost')
@@ -42,9 +43,11 @@ router.get('/', (req, res) => {
 })
 
 // 'GET' Routes
+router.get('/users', checkParameters('query', ['id']), getUserRoute())
 router.get('/events', checkParameters('query', ['subject']), getPostRoute('event', getEvents))
 router.get('/links', checkParameters('query', ['subject']), getPostRoute('link', getLinks))
-router.get('/users', checkParameters('query', ['id']), getUserRoute())
+router.get('/users-events', checkParameters('query', ['id']), getUsersPostsRoute('event', getEvents))
+router.get('/users-links', checkParameters('query', ['id']), getUsersPostsRoute('link', getLinks))
 
 // 'POST' Routes
 const postFields = ['name', 'subject', 'description']
